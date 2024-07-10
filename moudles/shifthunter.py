@@ -11,6 +11,7 @@ from scipy.interpolate import make_interp_spline
 from sympy import Rational, symbols
 from sympy.solvers.solveset import linsolve
 from mlxtend.evaluate import permutation_test
+from scipy.spatial.distance import jensenshannon
 import copy
 
 import myutils as utils
@@ -118,7 +119,7 @@ class ShiftHunter:
                 test_stats = entropy(O, E)
                 # print(f'Entropy: {test_stats}')
                 return test_stats
-            if test_formula == "Chi-Square":
+            if test_formula == "cs": # Chi-Square
                 f_x_normalized = f_x * (np.sum(f_y) / np.sum(f_x))
                 chi2_stat, _ = chisquare(f_x_normalized, f_exp=f_y)
                 test_stats = chi2_stat
@@ -130,7 +131,7 @@ class ShiftHunter:
                 test_stats = jsd
                 # print(f'JSD: {jsd}')
                 return test_stats
-            if test_formula == "Hellinger Distance":
+            if test_formula == "hd": # helinger distance
                 P = f_x / np.sum(f_x)
                 Q = f_y / np.sum(f_y)
                 test_stats = np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q)) ** 2)) / np.sqrt(2)
