@@ -120,6 +120,8 @@ class ShiftHunter:
                 # print(f'Entropy: {test_stats}')
                 return test_stats
             if test_formula == "cs": # Chi-Square
+                f_x += delta
+                f_y += delta
                 f_x_normalized = f_x * (np.sum(f_y) / np.sum(f_x))
                 chi2_stat, _ = chisquare(f_x_normalized, f_exp=f_y)
                 test_stats = chi2_stat
