@@ -119,7 +119,7 @@ class ShiftHunter:
                 test_stats = entropy(O, E)
                 # print(f'Entropy: {test_stats}')
                 return test_stats
-            if test_formula == "cs": # Chi-Square
+            elif test_formula == "cs": # Chi-Square
                 f_x += delta
                 f_y += delta
                 f_x_normalized = f_x * (np.sum(f_y) / np.sum(f_x))
@@ -127,17 +127,22 @@ class ShiftHunter:
                 test_stats = chi2_stat
                 # print(f'Chi-Square: {test_stats}')
                 return test_stats
-            if test_formula == "JSD":
+            elif test_formula == "JSD":
                 f_x_normalized = f_x * (np.sum(f_y) / np.sum(f_x))
                 jsd = jensenshannon(f_x_normalized, f_y)
                 test_stats = jsd
                 # print(f'JSD: {jsd}')
                 return test_stats
-            if test_formula == "hd": # helinger distance
+            elif test_formula == "hd": # helinger distance
                 P = f_x / np.sum(f_x)
                 Q = f_y / np.sum(f_y)
                 test_stats = np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q)) ** 2)) / np.sqrt(2)
                 # print(f'Hellinger Distance: {test_stats}')
+                return test_stats
+            elif test_formula == "bh":  # Bhattacharyya Distance
+                P = f_x / np.sum(f_x)
+                Q = f_y / np.sum(f_y)
+                test_stats = -np.log(np.sum(np.sqrt(P * Q)))
                 return test_stats
 
         p_value = permutation_test(self.treatment_res, self.control_res,
