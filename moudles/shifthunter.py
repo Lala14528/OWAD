@@ -12,6 +12,7 @@ from sympy import Rational, symbols
 from sympy.solvers.solveset import linsolve
 from mlxtend.evaluate import permutation_test
 from scipy.spatial.distance import jensenshannon
+from scipy.linalg import norm
 import copy
 
 import myutils as utils
@@ -157,6 +158,8 @@ class ShiftHunter:
                 E = np.sum(f_x) * fr_E + delta
                 O = f_x + delta
                 return entropy(O, E)
+            if test_formula == "entropy":
+                return entropy(x, y)
             # elif test_formula == "cs":
             #     return "Chi-Square"
             elif test_formula == "JSD":
