@@ -130,7 +130,7 @@ class ShiftHunter:
                 test_stats = chi2_stat
                 # print(f'Chi-Square: {test_stats}')
                 return test_stats
-            elif test_formula == "JSD": # jenshen
+            elif test_formula == "jsd": # jenshen
                 f_x_normalized = f_x * (np.sum(f_y) / np.sum(f_x))
                 jsd = jensenshannon(f_x_normalized, f_y)
                 test_stats = jsd
@@ -162,7 +162,7 @@ class ShiftHunter:
                 return entropy(x, y)
             # elif test_formula == "cs":
             #     return "Chi-Square"
-            elif test_formula == "JSD":
+            elif test_formula == "jsd":
                 return jensenshannon(x, y)
             elif test_formula == "hd":
                 _SQRT2 = np.sqrt(2)
