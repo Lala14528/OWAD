@@ -105,14 +105,16 @@ class ShiftHunter:
         else:
             plt.savefig(savefig)
 
-    def permu_test(self, num_rounds=DetParams['test_numrounds'], test_bin_num = None, test_formula = "Entropy"): # Permutation Test of control_hist and treatment_hist
+    def permu_test(self, num_rounds=DetParams['test_numrounds'], test_bin_num = None, test_formula = "ent"): # Permutation Test of control_hist and treatment_hist
         delta = 1 # in case of inf of entropy (when q is 0 while p is not 0)
         if test_bin_num is None:
             test_bin_num = self.bin_num
         def test_func(x,y): # x --> obs/treatment  y--> exp/control
+            # f_x = x[:21298]
+            # f_y = y[:21298]
             f_x = np.histogram(x, test_bin_num)[0]
             f_y = np.histogram(y, test_bin_num)[0]
-            if test_formula == "Entropy":
+            if test_formula == "ent": # entropy
                 fr_E = f_y/np.sum(f_y)
                 E = np.sum(f_x) * fr_E + delta
                 O = f_x + delta
@@ -127,7 +129,7 @@ class ShiftHunter:
                 test_stats = chi2_stat
                 # print(f'Chi-Square: {test_stats}')
                 return test_stats
-            elif test_formula == "JSD":
+            elif test_formula == "JSD": # jenshen
                 f_x_normalized = f_x * (np.sum(f_y) / np.sum(f_x))
                 jsd = jensenshannon(f_x_normalized, f_y)
                 test_stats = jsd
@@ -139,20 +141,44 @@ class ShiftHunter:
                 test_stats = np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q)) ** 2)) / np.sqrt(2)
                 # print(f'Hellinger Distance: {test_stats}')
                 return test_stats
-            elif test_formula == "bh":  # Bhattacharyya Distance
+            elif test_formula == "bc":  # Bhattacharyya Distance
                 P = f_x / np.sum(f_x)
                 Q = f_y / np.sum(f_y)
+                # test_stats = -np.log(np.sum(np.sqrt(P * Q)))
                 test_stats = -np.log(np.sum(np.sqrt(P * Q)))
+                # print("Bhattacharyya Distance: ", test_stats)
                 return test_stats
-
-        p_value = permutation_test(self.treatment_res, self.control_res,
+        
+        def get_test_formula(x,y):
+            if test_formula == "ent":
+                f_x = np.histogram(x, test_bin_num)[0]
+                f_y = np.histogram(y, test_bin_num)[0]
+                fr_E = f_y/np.sum(f_y)
+                E = np.sum(f_x) * fr_E + delta
+                O = f_x + delta
+                return entropy(O, E)
+            # elif test_formula == "cs":
+            #     return "Chi-Square"
+            elif test_formula == "JSD":
+                return jensenshannon(x, y)
+            elif test_formula == "hd":
+                _SQRT2 = np.sqrt(2)
+                return norm(np.sqrt(x) - np.sqrt(y)) / _SQRT2
+            elif test_formula == "bc":
+                return -np.log(np.sum(np.sqrt(x * y)))
+            
+        # print(f'self treatment {self.treatment_res.shape} control {self.control_res.shape}')
+        p_value = permutation_test(self.treatment_res[:self.control_res.shape[0]], self.control_res,
                            method='approximate',
                            num_rounds=num_rounds,
-                           func = test_func,
-                           seed = 42
+                           func = get_test_formula,
+                           seed = 0
                            )
         # print test_func result
-        print(f'{test_formula} Value : {test_func(self.treatment_res, self.control_res)}')
+        observed_stat = test_func(self.treatment_res, self.control_res)
+        # print(f'Observed {test_formula} Statistic: {observed_stat}')
+        
+        # print(f'{test_formula} Value : {test_func(self.treatment_res, self.control_res)}')
         return p_value
     
     def explainer(self, 
